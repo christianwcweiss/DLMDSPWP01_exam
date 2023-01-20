@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 import pandas as pd
 
@@ -18,7 +18,14 @@ class Dataset:
 		return self._df["y"]
 
 	def least_square_to_other_dataset(self, other_dataset: "Dataset") -> float:
-		if not self.x.equals(other_dataset.x):
-			raise DatasetsDoNotMatch(f"The coordinates of {list(self.x)} and {list(other_dataset.x)}")
+		self.assert_datasets_match(other_dataset)
 
 		return sum((self.y - other_dataset.y) ** 2) ** 0.5
+
+	def get_dataset_union(self, other_dataset: "Dataset") -> Set[float]:
+		return set(self.x) & set(other_dataset.x)
+
+	def assert_datasets_match(self, other_dataset: "Dataset") -> None:
+		dataset_union = self.get_dataset_union(other_dataset)
+		if len(self.x) != len(dataset_union) or len(other_dataset.x) != len(dataset_union) or len(self.x) != len(other_dataset.x):
+			raise DatasetsDoNotMatch(f"The datasets do not match in x!")
